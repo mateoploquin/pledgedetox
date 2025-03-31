@@ -2,11 +2,8 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "../screens/home";
 import SplashScreen from "../screens/onboarding";
-import DetailsScreen from "../screens/details";
 import LoginScreen from "../screens/onboarding/login";
-import RegisterScreen from "../screens/onboarding/register";
-import Instructions from "../screens/onboarding/instructions";
-import SharePledge from "../screens/onboarding/share-pledge";
+import ChallengeOn from "../screens/onboarding/setup/challenge-on";
 import ChallengeCompleted from "../screens/challenge-completed";
 import SelectAppsView from "../screens/select-apps";
 
@@ -24,32 +21,13 @@ const modalOptions = {
   gestureResponseDistance: 400,
   gestureDirection: "vertical" as const,
 };
-const modalGroupOptions = {
-  presentation: "modal" as const,
-  headerShown: false,
-};
 
 const AppNavigator = ({ initialRouteName }) => {
   return (
     <Stack.Navigator initialRouteName={initialRouteName}>
       <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={hideHeaderNoGesture}
-      />
-      <Stack.Screen
         name="Splash"
         component={SplashScreen}
-        options={hideHeaderOptions}
-      />
-      <Stack.Screen
-        name="Instructions"
-        component={Instructions}
-        options={hideHeaderNoAnimation}
-      />
-      <Stack.Screen
-        name="Details"
-        component={DetailsScreen}
         options={hideHeaderOptions}
       />
       <Stack.Screen
@@ -58,24 +36,25 @@ const AppNavigator = ({ initialRouteName }) => {
         options={hideHeaderNoAnimation}
       />
       <Stack.Screen
-        name="Register"
-        component={RegisterScreen}
+        name="SelectApps"
+        component={SelectAppsView}
+        options={modalOptions}
+      />
+      <Stack.Screen
+        name="ChallengeOn"
+        component={ChallengeOn}
         options={hideHeaderNoAnimation}
+      />
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={hideHeaderNoGesture}
       />
       <Stack.Screen
         name="ChallengeCompleted"
         component={ChallengeCompleted}
         options={hideHeaderOptions}
       />
-      <Stack.Screen
-        name="SelectApps"
-        component={SelectAppsView}
-        options={modalOptions}
-      />
-
-      <Stack.Group screenOptions={modalGroupOptions}>
-        <Stack.Screen name="SharePledge" component={SharePledge} />
-      </Stack.Group>
     </Stack.Navigator>
   );
 };

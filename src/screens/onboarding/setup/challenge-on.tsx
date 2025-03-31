@@ -1,18 +1,18 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { EvilIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import colors from "../../../theme/colors";
+import MainButton from "../../../components/buttons/main-button";
 
 const ChallengeOn: React.FC = () => {
   const navigation = useNavigation<any>();
 
-  const handleSharePledge = () => {
-    navigation.navigate("SharePledge");
+  const handleStartChallenge = () => {
+    navigation.navigate("Home");
   };
 
   return (
-    <View>
+    <View style={styles.container}>
       <Image
         source={require("../../../../assets/images/onboarding/challenge-on.png")}
         style={styles.image}
@@ -20,42 +20,53 @@ const ChallengeOn: React.FC = () => {
 
       <Text style={styles.title}>Challenge On!</Text>
       <Text style={styles.subtitle}>
-        Take control of your time. Let the challenge begin!
+        Your 30-day app blocker is now active. Take control of your time and break free from digital distractions!
       </Text>
 
-      <TouchableOpacity onPress={() => handleSharePledge()} style={styles.shareButton}>
-        <EvilIcons name="share-apple" size={30} color={colors.orange} />
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <MainButton 
+          text="Start My Challenge" 
+          onPress={handleStartChallenge}
+          style={styles.button}
+        />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.appBackground,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 30,
+  },
   image: {
     alignSelf: "center",
-    marginTop: 59
+    marginBottom: 40,
   },
   title: {
     fontSize: 30,
     fontWeight: "600",
-    textAlign: "center", 
-    marginTop: 40
+    textAlign: "center",
+    color: colors.white,
+    marginBottom: 20,
   },
   subtitle: {
     fontFamily: "InstrumentSerif-Regular",
     textAlign: "center",
-    marginTop: 15,
-    marginHorizontal: 30
+    color: colors.white,
+    fontSize: 18,
+    lineHeight: 26,
   },
-  shareButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.white,
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "center",
-    marginTop: 31
+  buttonContainer: {
+    marginTop: 50,
+    width: '100%',
+    alignItems: 'center',
+  },
+  button: {
+    width: 200,
   }
 });
 

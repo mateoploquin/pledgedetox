@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     marginBottom: 7,
   },
   children: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.darkGray, // Changed from white to darkGray for better contrast on black background
     borderRadius: 17,
   },
 });

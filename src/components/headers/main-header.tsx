@@ -27,14 +27,14 @@ const styles = StyleSheet.create({
     fontSize: 40,
     letterSpacing: -3,
     fontWeight: "800",
-    color: colors.black,
+    color: colors.white,
   },
   subtitle: {
     fontSize: 12,
     letterSpacing: 4,
     fontWeight: "400",
     marginTop: 4,
-    color: colors.orange,
+    color: colors.white,
   },
 });
 

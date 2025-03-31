@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, PanResponder } from "react-native";
+import { StyleSheet, Text, PanResponder, View } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,6 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 import colors from "../../theme/colors";
 import { SCREEN_WIDTH } from "../../utils/constants/dimensions";
+import { Feather } from "@expo/vector-icons";
 
 type SplashSliderProps = {
   isPledged: boolean;
@@ -47,66 +48,64 @@ const SplashSlider: React.FC<SplashSliderProps> = ({
     };
   });
 
-  const animatedBackgroundStyle = useAnimatedStyle(() => {
-    return {
-      backgroundColor: withTiming(
-        isPledged ? colors.midOrange : colors.darkWhite,
-        {
-          duration: 500,
-        }
-      ),
-    };
-  });
-
   return (
-    <Animated.View style={[styles.sliderBackground, animatedBackgroundStyle]}>
-      <Text
-        style={[
-          styles.text,
-          { color: isPledged ? colors.white : colors.gray1 },
-        ]}
-      >
-        {isPledged ? "Let’s Pledge" : "Slide to Unlock"}
-      </Text>
-      <Animated.View
-        style={[styles.sliderButton, animatedSliderStyle]}
-        {...panResponder.panHandlers}
-      >
-        <Text style={styles.arrow}>{isPledged ? "✓" : "➔"}</Text>
-      </Animated.View>
-    </Animated.View>
+    <View style={styles.container}>
+      <View style={styles.sliderBackground}>
+        <Text style={styles.text}>
+          {isPledged ? "Let's Pledge" : "Slide to break free"}
+        </Text>
+        <Animated.View
+          style={[styles.sliderButton, animatedSliderStyle]}
+          {...panResponder.panHandlers}
+        >
+          <Feather name="arrow-right" size={20} color="#FF3D00" />
+        </Animated.View>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   sliderBackground: {
     width: SCREEN_WIDTH * 0.8,
-    height: 60,
-    borderRadius: 30,
+    height: 50,
+    borderRadius: 25,
     justifyContent: "center",
     padding: 5,
     position: "relative",
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   text: {
-    fontSize: 18,
+    fontSize: 16,
     textAlign: "center",
     position: "absolute",
     width: "100%",
     zIndex: 0,
+    color: colors.white,
   },
   sliderButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: colors.white,
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",
     zIndex: 1,
-  },
-  arrow: {
-    fontSize: 24,
-    color: colors.midOrange,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
 

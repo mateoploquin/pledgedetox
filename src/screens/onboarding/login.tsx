@@ -1,14 +1,13 @@
 // File: src/screens/onboarding/login.tsx
 import React, { useState } from "react";
 import { Text, Image, TouchableOpacity, TextInput, View, Alert, StyleSheet } from "react-native";
-import OnboardingWrapper from "../../components/layout/app-wrapper";
-import MainHeader from "../../components/headers/main-header";
 import AppWrapper from "../../components/layout/app-wrapper";
-import { Feather } from "@expo/vector-icons";
+import MainHeader from "../../components/headers/main-header";
 import colors from "../../theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
+import MainButton from "../../components/buttons/main-button";
 
 interface LoginScreenProps {}
 
@@ -20,15 +19,15 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigation.navigate("Instructions");
+      // Navigate to SelectApps screen
+      navigation.navigate("SelectApps", {
+        deviceActivitySelection: undefined,
+        setDeviceActivitySelection: () => {},
+      });
     } catch (error) {
       console.error("Login Error:", error);
       Alert.alert("Login failed", error.message || "An error occurred");
     }
-  };
-
-  const handleNavigateRegister = () => {
-    navigation.navigate("Register");
   };
 
   return (
@@ -58,16 +57,16 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
           textContentType="password"
           secureTextEntry
         />
-        <TouchableOpacity onPress={handleLogin}>
-          <Feather name="chevron-right" size={20} color={colors.orange} />
-        </TouchableOpacity>
       </View>
 
-      <TouchableOpacity onPress={handleNavigateRegister}>
-        <Text style={styles.signUpText}>
-          Don't have an account? Sign Up
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <MainButton 
+          text="Login" 
+          onPress={handleLogin}
+          style={styles.loginButton}
+          textStyle={styles.loginButtonText}
+        />
+      </View>
 
       <Image
         source={require("../../../assets/images/onboarding/Phone_withicons.png")}
@@ -89,12 +88,20 @@ const styles = StyleSheet.create({
   },
   input: {
     marginVertical: 12,
-    width: "80%"
+    width: "100%",
+    color: colors.white, // Ensure text is visible on black background
   },
-  signUpText: {
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 60,
+  },
+  loginButton: {
+    width: 200,
+    backgroundColor: colors.white,
+  },
+  loginButtonText: {
     color: colors.orange,
-    textAlign: "center",
-    marginTop: 20
   },
   bottomImage: {
     position: "absolute",

@@ -12,8 +12,8 @@ const colors = {
   black: "#000000",
 
   // Onboarding specific colors
-  onboardingBackground: "#FFF6F1",
-  onboardingBackgroundLight: "#FFF6F3",
+  onboardingBackground: "#000000", // Changed from "#FFF6F1" to black
+  onboardingBackgroundLight: "#000000", // Changed from "#FFF6F3" to black
 
   // Gray scale
   lightGray: "#F5F5F5",
@@ -35,6 +35,9 @@ const colors = {
   gradients: {
     orange: ["#FF8C42", "#FF3D00"] as const,
   },
+  
+  // App background
+  appBackground: "#000000", // Added for consistent black background
 };
 
 export default colors;

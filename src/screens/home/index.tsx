@@ -4,17 +4,13 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
   StyleSheet,
   Button,
 } from "react-native";
-import HomeCardWrapper from "../../components/cards/home-card-wrapper";
 import colors from "../../theme/colors";
-import ScreenTimeList from "../../lists/screen-time-list";
 import SurrenderModal from "../../components/modals/surrender-modal";
 import HomeHeader from "../../components/headers/home-header";
 import HomeWrapper from "../../components/layout/home-wrapper";
-import DayProgressBar from "../../components/bars/days-progress-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PledgeSettings } from "../../types";
 import { Controller } from "./home.controller";
@@ -26,17 +22,11 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const { startMonitoring, stopMonitoring, shieldConfiguration, block } =
     Controller.useHandleMonitoring();
-  const { refreshEvents, onSurrender } = Controller.useHandleChangeEvents(setModalVisible);
+  const { onSurrender } = Controller.useHandleChangeEvents(setModalVisible);
 
   const [settings, setSettings] = useState<PledgeSettings | undefined>(
     undefined
   );
-  const [{ hours, minutes, remainingMinutes }, setTotalTime] =
-    useState<Interfaces.Timer>({
-      hours: 0,
-      minutes: 0,
-      remainingMinutes: 0,
-    });
   const [challengeStartDate, setChallengeStartDate] = useState<Date | null>(
     null
   );
@@ -46,7 +36,6 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
     minutes: 0,
     seconds: 0,
   });
-  const [currentDay, setCurrentDay] = useState(1);
 
   const countdownTimes = [
     { value: countdown.days, label: "Days" },
@@ -65,13 +54,11 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
           return;
         }
         setSettings(settings);
-        // startMonitoring(timeValue);
         shieldConfiguration();
 
         listener = ReactNativeDeviceActivity.onDeviceActivityMonitorEvent(
           (event) => {
-            console.log("got event, refreshing events!", event);
-            refreshEvents(setTotalTime);
+            console.log("got event");
           }
         ).remove;
       }
@@ -127,15 +114,6 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
       const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
       setCountdown({ days, hours, minutes, seconds });
-
-      const daysPassed = Math.min(
-        Math.ceil(
-          (now.getTime() - new Date(challengeStartDate).getTime()) /
-            (1000 * 60 * 60 * 24)
-        ),
-        CHALLENGE_DURATION
-      );
-      setCurrentDay(Math.max(1, daysPassed));
     };
 
     const timer = setInterval(calculateTimeLeft, 1000);
@@ -150,68 +128,24 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
 
   const toggleModal = () => setModalVisible((prev) => !prev);
 
-  const { timeValue, pledgeValue, selectionEvent } = settings;
-
   return (
     <HomeWrapper>
       <HomeHeader />
-      <ScrollView
-        contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.challengeTitle}>My Challenge</Text>
+      <View style={styles.contentContainer}>
         <View style={styles.cardContainer}>
-          <View style={styles.cardBackground}>
-            <HomeCardWrapper title={"Countdown"}>
-              <View style={styles.countdownContainer}>
-                {countdownTimes.map((item, index) => (
-                  <Fragment key={item.label}>
-                    {index > 0 && <Text>:</Text>}
-                    <View style={styles.timeItemContainer}>
-                      <Text style={styles.time}>{item.value}</Text>
-                      <Text style={styles.timeText}>{item.label}</Text>
-                    </View>
-                  </Fragment>
-                ))}
-              </View>
-            </HomeCardWrapper>
-
-            <HomeCardWrapper
-              style={styles.homeCardWrapper}
-              title={"Daily Consumption"}
-            >
-              <View style={styles.consumptionContainer}>
-                <Text style={styles.hoursMinutesText}>
-                  {hours}h {minutes}m
-                </Text>
-                <Text style={styles.remainingText}>
-                  <Text style={styles.remainingMinutesText}>
-                    {remainingMinutes}m
-                  </Text>
-                  left for your daily limit
-                </Text>
-                <ScreenTimeList />
-              </View>
-            </HomeCardWrapper>
-
-            <HomeCardWrapper
-              style={styles.homeCardWrapper}
-              title={"Progress Bar"}
-            >
-              <View style={styles.progressContainer}>
-                <DayProgressBar
-                  currentDay={currentDay}
-                  daysRemaining={countdown.days}
-                  totalDays={CHALLENGE_DURATION}
-                />
-              </View>
-              <Button title='stop' onPress={stopMonitoring}/>
-              <Button title='start' onPress={() => startMonitoring()}/>
-              <Button title='getEvents' onPress={() => refreshEvents(setTotalTime)}/>
-            </HomeCardWrapper>
+          <View style={styles.countdownContainer}>
+            {countdownTimes.map((item, index) => (
+              <Fragment key={item.label}>
+                {index > 0 && <Text style={styles.colonText}>:</Text>}
+                <View style={styles.timeItemContainer}>
+                  <Text style={styles.time}>{item.value}</Text>
+                  <Text style={styles.timeText}>{item.label}</Text>
+                </View>
+              </Fragment>
+            ))}
           </View>
         </View>
-      </ScrollView>
+      </View>
 
       <TouchableOpacity onPress={toggleModal} style={styles.surrenderButton}>
         <Text style={styles.surrenderText}>I surrender</Text>
@@ -227,59 +161,44 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
 };
 
 const styles = StyleSheet.create({
-  scrollViewContent: {
-    paddingBottom: 100,
-  },
-  challengeTitle: {
-    fontSize: 24,
-    fontWeight: "700",
-    marginHorizontal: 30,
-    color: colors.white,
-    marginTop: 20,
-    marginBottom: 17,
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cardContainer: {
+    width: '90%',
     borderRadius: 25,
     overflow: "hidden",
-    marginHorizontal: 30,
-  },
-  cardBackground: {
-    backgroundColor: "rgba(255, 255, 255, 0.70)",
-    padding: 10,
+    padding: 15,
   },
   countdownContainer: {
     flexDirection: "row",
-    justifyContent: "space-evenly",
+    justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 10,
-    marginVertical: 12,
+    marginVertical: 20,
   },
   timeItemContainer: {
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 10,
   },
-  homeCardWrapper: {
-    marginTop: 18,
+  colonText: {
+    fontSize: 36,
+    color: colors.white,
+    marginBottom: 10,
   },
-  consumptionContainer: {
-    paddingTop: 14,
-    paddingBottom: 19,
-    paddingHorizontal: 16,
+  time: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: colors.white,
   },
-  hoursMinutesText: {
-    fontSize: 48,
-    fontWeight: "500",
-  },
-  remainingText: {
-    fontSize: 15,
-  },
-  remainingMinutesText: {
-    fontWeight: "500",
-  },
-  progressContainer: {
-    paddingTop: 14,
-    paddingBottom: 19,
-    paddingHorizontal: 16,
+  timeText: {
+    fontSize: 10,
+    color: colors.white,
+    textTransform: "uppercase",
+    textAlign: "center",
   },
   surrenderButton: {
     backgroundColor: colors.white,
@@ -294,22 +213,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+    width: 200,
   },
   surrenderText: {
     color: colors.primaryOrange,
-    fontSize: 14,
-    fontWeight: "normal",
+    fontSize: 16,
+    fontWeight: "500",
     textAlign: "center",
-  },
-  timeText: {
-    fontSize: 10,
-    color: "rgba(0, 0, 0, 0.70)",
-    textTransform: "uppercase",
-    textAlign: "center",
-  },
-  time: {
-    fontSize: 36,
-    color: colors.orange,
   },
 });
 

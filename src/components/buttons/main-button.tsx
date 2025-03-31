@@ -1,11 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable, ViewStyle } from "react-native";
+import { View, Text, StyleSheet, Pressable, ViewStyle, TextStyle } from "react-native";
 import colors from "../../theme/colors";
 
 interface MainButtonProps {
   onPress: () => void;
   text: string;
   style?: ViewStyle;
+  textStyle?: TextStyle;
   disabled?: boolean;
 }
 
@@ -13,6 +14,7 @@ const MainButton: React.FC<MainButtonProps> = ({
   onPress,
   text,
   style,
+  textStyle,
   disabled = false,
 }) => {
   return (
@@ -24,7 +26,7 @@ const MainButton: React.FC<MainButtonProps> = ({
           disabled && { backgroundColor: colors.orange, opacity: 0.6 },
         ]}
       >
-        <Text style={[styles.text, disabled && { opacity: 0.6 }]}>{text}</Text>
+        <Text style={[styles.text, textStyle, disabled && { opacity: 0.6 }]}>{text}</Text>
       </Pressable>
     </View>
   );
