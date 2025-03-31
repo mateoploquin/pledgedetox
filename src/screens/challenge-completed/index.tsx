@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import colors from "../../theme/colors";
 import MainHeaderLight from "../../components/headers/main-header-light";
 import AppWrapper from "../../components/layout/app-wrapper";
-import PledgeFormIcon from "../../../assets/images/icons/pledge-form";
 import { SCREEN_HEIGHT } from "../../utils/constants/dimensions";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ReactNativeDeviceActivity from "react-native-device-activity";
@@ -31,7 +30,7 @@ const ChallengeCompleted: React.FC<ChallengeCompletedProps> = ({
     await AsyncStorage.removeItem('pledgeSettings');
     await AsyncStorage.removeItem('challengeStartDate');
     
-    navigation.navigate("Instructions");
+    navigation.navigate("Splash");
   };
 
   useEffect(() => {
@@ -49,18 +48,12 @@ const ChallengeCompleted: React.FC<ChallengeCompletedProps> = ({
         Challenge outcome
       </Text>
 
-      <View style={styles.card}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={
-              result === "success"
-                ? require("../../../assets/images/challenge-completed/golden-cup.png")
-                : require("../../../assets/images/challenge-completed/failed-challenge.png")
-            }
-            style={styles.resultImage}
-          />
-          <PledgeFormIcon size={130} />
-        </View>
+      <View style={styles.contentContainer}>
+        <Image
+          source={require("../../../assets/Splashwhite.png")}
+          style={styles.resultImage}
+          resizeMode="contain"
+        />
 
         <Text style={styles.resultText}>
           {result === "success" ? (
@@ -92,67 +85,58 @@ const ChallengeCompleted: React.FC<ChallengeCompletedProps> = ({
 
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: colors.orange
+    backgroundColor: colors.black
   },
   headerText: {
     fontFamily: "InstrumentSerif-Regular",
     color: colors.white,
     fontSize: 20,
     textAlign: "center",
-    marginTop: 13,
+    marginTop: 20,
+    marginBottom: 30,
   },
-  card: {
-    marginHorizontal: 32,
-    backgroundColor: colors.white,
-    paddingVertical: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: SCREEN_HEIGHT * 0.10,
-    borderRadius: 20,
-    paddingTop: 50,
-  },
-  imageContainer: {
-    justifyContent: "center",
-    alignItems: "center"
+  contentContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
   },
   resultImage: {
-    width: 170,
+    width: 180,
     height: 180,
-    marginBottom: -100,
-    zIndex: 100,
-    resizeMode: 'contain'
+    marginBottom: 30,
   },
   resultText: {
-    fontSize: 20,
+    fontSize: 24,
+    fontWeight: "600",
+    color: colors.white,
     textAlign: "center",
-    marginTop: 40,
     marginBottom: 20,
-    marginHorizontal: 50,
   },
   subText: {
-    fontSize: 15
+    fontSize: 16,
+    fontWeight: "400",
+    color: colors.white,
+    textAlign: "center",
   },
   buttonContainer: {
-    alignSelf: "center",
-    position: "absolute",
-    bottom: 40
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 40,
   },
   button: {
     backgroundColor: colors.white,
-    alignSelf: "flex-start",
-    paddingVertical: 12,
-    paddingHorizontal: 17,
-    borderRadius: 50,
-    marginTop: 45,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 200,
   },
   buttonText: {
     color: colors.orange,
-    fontWeight: "500"
-  },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    fontSize: 16,
+    fontWeight: "500",
   },
 });
 

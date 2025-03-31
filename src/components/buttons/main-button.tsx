@@ -18,11 +18,12 @@ const MainButton: React.FC<MainButtonProps> = ({
   disabled = false,
 }) => {
   return (
-    <View style={[{ alignSelf: "center" }, style]}>
+    <View style={[{ alignSelf: "center" }]}>
       <Pressable
         onPress={!disabled ? onPress : undefined}
         style={[
           styles.container,
+          style,
           disabled && { backgroundColor: colors.orange, opacity: 0.6 },
         ]}
       >

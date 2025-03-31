@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import colors from "../../theme/colors";
-import { sendPayment } from "../../services/stripe-api"; // Importing sendPayment Fucntion
 import { auth } from "../../firebaseConfig";
 
 interface SurrenderModalProps {
@@ -17,19 +16,8 @@ const SurrenderModal: React.FC<SurrenderModalProps> = ({
 }) => {
   if (!isVisible) return null;
 
-  const handleSurrender = async () => {
-    try {
-      const user = auth.currentUser;
-      if (user) {
-        const idToken = await user.getIdToken();
-        const response = await sendPayment("charge", idToken);
-        console.log("Payment response:", response);
-      } else {
-        console.error("User not authenticated. Cannot send payment.");
-      }
-    } catch (error) {
-      console.error("Error processing payment:", error);
-    }
+  const handleSurrender = () => {
+    // Simply call the onSurrender function without any payment processing
     onSurrender();
   };
 
@@ -53,7 +41,7 @@ const SurrenderModal: React.FC<SurrenderModalProps> = ({
           <Text style={styles.modalButtonText}>No, go back</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSurrender}>
-          <Text style={styles.surrenderText}>Yes, I’m an addict</Text>
+          <Text style={styles.surrenderText}>Yes, I'm WEAK</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -101,7 +89,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalButton: {
-    backgroundColor: colors.orange,
+    backgroundColor: colors.black,
     paddingVertical: 16,
     paddingHorizontal: 60,
     borderRadius: 25,
