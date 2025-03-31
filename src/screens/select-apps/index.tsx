@@ -25,6 +25,7 @@ export type SelectAppsViewProps = {
 
 const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [selectedAppsCount, setSelectedAppsCount] = useState(0);
 
   const [deviceActivitySelection, setDeviceActivitySelection] = useState<
     DeviceActivitySelectionEvent | undefined
@@ -40,6 +41,18 @@ const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
         id: pledgeActivitySelectionId,
         familyActivitySelection: event.nativeEvent.familyActivitySelection,
       });
+      
+      // Count the number of selected apps
+      try {
+        const selection = event.nativeEvent.familyActivitySelection;
+        // This is a bit of a hack since we don't have direct access to the selection data structure
+        // We're counting the number of tokens in the selection string as an approximation
+        const selectionStr = JSON.stringify(selection);
+        const appCount = (selectionStr.match(/"bundleIdentifier"/g) || []).length;
+        setSelectedAppsCount(appCount);
+      } catch (error) {
+        console.error("Error counting selected apps:", error);
+      }
     }
   };
 
@@ -96,7 +109,11 @@ const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
           setIsVisible(true);
         }}
       >
-        <Text style={styles.selectAppsButtonText}>Click to Select Apps...</Text>
+        <Text style={styles.selectAppsButtonText}>
+          {selectedAppsCount > 0 
+            ? `${selectedAppsCount} Apps Selected` 
+            : "Click to Select Apps..."}
+        </Text>
       </TouchableOpacity>
 
       {isVisible && (
@@ -116,7 +133,11 @@ const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
       )}
 
       <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-        <Text style={styles.continueButtonText}>Continue</Text>
+        <Text style={styles.continueButtonText}>
+          {selectedAppsCount > 0 
+            ? `Continue with ${selectedAppsCount} Apps` 
+            : "Continue"}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={handleGoBack}>
@@ -139,10 +160,11 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   title: {
-    fontSize: 36,
-    fontWeight: '700',
+    fontSize: 70,
+    fontWeight: "900",
     color: colors.white,
     marginBottom: 5,
+    letterSpacing: -5,
   },
   subtitle: {
     fontSize: 14,

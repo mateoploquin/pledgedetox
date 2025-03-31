@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import Animated, {
   useAnimatedStyle,
   withTiming,
@@ -30,13 +30,6 @@ const Onboarding: React.FC = () => {
         <Text style={styles.title}>Pledge</Text>
         <Text style={styles.subtitle}>Live more, scroll less.</Text>
       </View>
-
-      <TouchableOpacity 
-        style={styles.loginButton}
-        onPress={() => navigation.navigate("Login")}
-      >
-        <Text style={styles.loginButtonText}>Login</Text>
-      </TouchableOpacity>
 
       <View style={styles.sliderContainer}>
         <SplashSlider isPledged={isPledged} setIsPledged={setIsPledged} />
@@ -75,29 +68,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 100,
     zIndex: 10,
-  },
-  loginButton: {
-    position: "absolute",
-    top: SCREEN_HEIGHT * 0.6,
-    backgroundColor: colors.white,
-    width: 150,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  loginButtonText: {
-    color: colors.orange,
-    fontSize: 16,
-    fontWeight: "600",
   },
 });
 
