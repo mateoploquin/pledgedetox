@@ -1,0 +1,78 @@
+{
+  "expo": {
+    "name": "PledgeDetox",
+    "slug": "pledgedetox",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "buildNumber": "1",
+      "bundleIdentifier": "com.pledgecompany.pledgedetox",
+      "infoPlist": {
+        "NSCameraUsageDescription": "PledgeDetox does not use the camera for any purpose"
+      },
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "appleTeamId": "GC2XRZ6HSJ"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.pledgecompany.pledge"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e7e2e883-b2f3-4d92-964c-0e0608a1ff96"
+      }
+    },
+    "sourceExts": [
+      "js",
+      "jsx",
+      "ts",
+      "tsx"
+    ],
+    "owner": "pledge",
+    "plugins": [
+      "expo-font",
+      "expo-localization",
+      "@react-native-firebase/app",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "deploymentTarget": "16.0"
+          }
+        }
+      ],
+      [
+        "react-native-device-activity",
+        {
+          "appleTeamId": "GC2XRZ6HSJ",
+          "appGroup": "group.com.pledgecompany.pledge"
+        }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.pledge.applepay",
+          "enableGooglePay": false
+        }
+      ]
+    ]
+  }
+}
