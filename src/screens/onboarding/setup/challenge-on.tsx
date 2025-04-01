@@ -3,12 +3,29 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import colors from "../../../theme/colors";
 import MainButton from "../../../components/buttons/main-button";
+import { Controller } from "../../../screens/home/home.controller";
 
-const ChallengeOn: React.FC = () => {
+const ChallengeOn = () => {
   const navigation = useNavigation<any>();
+  const { block, shieldConfiguration } = Controller.useHandleMonitoring();
 
-  const handleStartChallenge = () => {
-    navigation.navigate("Home");
+  const handleStartChallenge = async () => {
+    try {
+      // Configure the shield that will appear when apps are blocked
+      shieldConfiguration();
+      
+      // Trigger the app blocking directly
+      await block();
+      
+      console.log("App blocking activated from Challenge On screen");
+      
+      // Navigate to the Home screen
+      navigation.navigate("Home");
+    } catch (error) {
+      console.error("Error starting app blocking:", error);
+      // Still navigate to Home even if there's an error
+      navigation.navigate("Home");
+    }
   };
 
   return (

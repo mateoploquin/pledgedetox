@@ -16,9 +16,6 @@ export type SelectAppsViewProps = {
   route: RouteProp<{
     params: {
       deviceActivitySelection: DeviceActivitySelectionEvent | undefined;
-      setDeviceActivitySelection: (
-        event: NativeSyntheticEvent<DeviceActivitySelectionEvent>
-      ) => void;
     };
   }>;
 };
@@ -32,26 +29,39 @@ const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
   >(route.params.deviceActivitySelection);
 
   const updateDeviceActivitySelection = (
-    event: NativeSyntheticEvent<DeviceActivitySelectionEvent>
+    event: any
   ) => {
-    setDeviceActivitySelection(event.nativeEvent);
-    if (event.nativeEvent.familyActivitySelection) {
-      route.params.setDeviceActivitySelection(event);
+    const selectionEvent = event.nativeEvent as DeviceActivitySelectionEvent;
+    setDeviceActivitySelection(selectionEvent);
+    if (selectionEvent.familyActivitySelection) {
+      // Set the selection ID with the opaque token provided by the system
       setFamilyActivitySelectionId({
         id: pledgeActivitySelectionId,
-        familyActivitySelection: event.nativeEvent.familyActivitySelection,
+        familyActivitySelection: selectionEvent.familyActivitySelection,
       });
       
-      // Count the number of selected apps
+      // Save the entire selection event (which contains the opaque token)
+      // We can't access the specific apps, but we can store the token for later use
       try {
-        const selection = event.nativeEvent.familyActivitySelection;
-        // This is a bit of a hack since we don't have direct access to the selection data structure
-        // We're counting the number of tokens in the selection string as an approximation
-        const selectionStr = JSON.stringify(selection);
+        // Log the selection structure for debugging
+        console.log("Selection structure in select-apps:", 
+          JSON.stringify(selectionEvent).substring(0, 200) + "...");
+          
+        AsyncStorage.setItem(
+          "pledgeSettings",
+          JSON.stringify({
+            selectionEvent: selectionEvent,
+            paymentSetupComplete: true,
+          })
+        );
+        
+        // Count the number of selected apps by examining the structure
+        // This is an approximation since we can't directly access the app list
+        const selectionStr = JSON.stringify(selectionEvent);
         const appCount = (selectionStr.match(/"bundleIdentifier"/g) || []).length;
         setSelectedAppsCount(appCount);
       } catch (error) {
-        console.error("Error counting selected apps:", error);
+        console.error("Error saving selection:", error);
       }
     }
   };

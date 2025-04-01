@@ -1,7 +1,6 @@
 import * as ReactNativeDeviceActivity from "react-native-device-activity";
 import {
   pledgeActivitySelectionId,
-  potentialMaxEvents,
   eventNameTick,
   initialMinutes,
   postponeMinutes,
@@ -21,109 +20,86 @@ import { DeviceActivityEvent, UIBlurEffectStyle } from 'react-native-device-acti
 export namespace Controller {
   export const useHandleMonitoring = () => {
     const startMonitoring = async () => {
-      const savedData = await AsyncStorage.getItem("selectionEvent");
-      const activitySelection = (JSON.parse(savedData) as SelectionInfo).familyActivitySelection
-
-      const totalEvents = (1 * 60) / POSTPONE_MINUTES;
-    
-      let events: DeviceActivityEvent[] = [];
-    
-      // loop over each our of the day
-      for (let hour = 0; hour < 24; hour++) {
-        for (let i = 0; i < totalEvents; i++) {
-          const name = `${(i + 1) * POSTPONE_MINUTES}_minutes_today`;
-          events.push({
-            eventName: name,
-            familyActivitySelection: activitySelection,
-            threshold: { minute: (i + 1) * POSTPONE_MINUTES },
-          });
+      try {
+        // Get the saved selection data
+        const pledgeSettings = await AsyncStorage.getItem("pledgeSettings");
+        if (!pledgeSettings) {
+          console.error("No app selection found");
+          return;
         }
-    
-        ReactNativeDeviceActivity.startMonitoring(
-          "DeviceActivity.AppLoggedTimeDaily." + hour,
-          {
-            intervalStart: { hour, minute: 0, second: 0 },
-            intervalEnd: { hour, minute: 59, second: 59 },
-            repeats: true,
-          },
-          events,
-        ).catch((e) => console.log({e}));
-        events = [];
+        
+        const parsedSettings = JSON.parse(pledgeSettings);
+        const selectionEvent = parsedSettings.selectionEvent;
+        
+        if (!selectionEvent?.familyActivitySelection) {
+          console.error("No valid selection found");
+          return;
+        }
+        
+        // Configure the shield appearance
+        shieldConfiguration();
+        
+        // Set the activity selection ID with the opaque token
+        await ReactNativeDeviceActivity.setFamilyActivitySelectionId({
+          id: pledgeActivitySelectionId,
+          familyActivitySelection: selectionEvent.familyActivitySelection,
+        });
+        
+        // Block the selected apps immediately
+        ReactNativeDeviceActivity.blockSelection({ 
+          activitySelectionId: pledgeActivitySelectionId
+        });
+        
+        // Save the challenge start date if not already set
+        const now = new Date();
+        await AsyncStorage.setItem("challengeStartDate", now.toISOString());
+        
+        console.log("Apps blocked for 30 days challenge");
+        
+        // For debugging purposes, log the selection event structure
+        console.log("Selection event structure:", JSON.stringify(selectionEvent).substring(0, 200) + "...");
+      } catch (error) {
+        console.error("Error starting app blocking:", error);
       }
     };
 
-    // const startMonitoring = (thresholdMinutes: number) => {
-    //   const events: DeviceActivityEvent[] = [];
-    //     console.log({activitySelection})
-
-    //   // Generate minute-based events in a single loop
-    //   for (let i = 0; i < potentialMaxEvents; i++) {
-    //     // events.push({
-    //     //   eventName: `events_${eventNameTick}_${initialMinutes + i * postponeMinutes}`,
-    //     //   familyActivitySelection: activitySelection,
-    //     //   threshold: { minute: initialMinutes + i * postponeMinutes },
-    //     //   includesPastActivity: true,
-    //     // });
-    //   }
-
-    //   // Add the final threshold event
-    //   // console.log({thresholdMinutes})
-    //   // events.push({
-    //   //   eventName: eventNameFinish,
-    //   //   familyActivitySelection: activitySelection,
-    //   //   threshold: { minute: thresholdMinutes },
-    //   // });
-
-    //   // Configure blocking actions when threshold is reached
-    //   // ReactNativeDeviceActivity.configureActions({
-    //   //   activityName: monitoringEventName,
-    //   //   callbackName: "eventDidReachThreshold",
-    //   //   eventName: eventNameFinish,
-    //   //   actions: [
-    //   //     {
-    //   //       type: "blockAllApps",
-    //   //       familyActivitySelectionId: pledgeActivitySelectionId,
-    //   //       shieldId: pledgeShieldId,
-    //   //     },
-    //   //   ],
-    //   // });
-
-    //   // Configure unblocking at end of day
-    //   // ReactNativeDeviceActivity.configureActions({
-    //   //   activityName: monitoringEventName,
-    //   //   callbackName: "intervalDidEnd",
-    //   //   actions: [],
-    //   // });
-    //   // Start monitoring with daily interval
-
-    //   ReactNativeDeviceActivity.startMonitoring(
-    //     monitoringEventName,
-    //     {
-    //       intervalStart: { hour: 0, minute: 0, second: 0 },
-    //       intervalEnd: { hour: 23, minute: 59, second: 59 },
-    //       repeats: false,
-    //       // warningTime: { minute: 1 },
-    //     },
-    //     [{
-    //       eventName: 'qwe',
-    //       familyActivitySelection: activitySelection,
-    //       threshold: {
-    //         minute: 10,
-
-    //       },
-    //       includesPastActivity: false
-    //     }]
-    //   );
-    // };
-
-    const stopMonitoring = () => {
-      ReactNativeDeviceActivity.stopMonitoring([monitoringEventName]);
-      ReactNativeDeviceActivity.resetBlocks();
+    const stopMonitoring = async () => {
+      try {
+        // Reset all blocks
+        ReactNativeDeviceActivity.resetBlocks();
+        
+        // Clear the challenge start date
+        await AsyncStorage.removeItem("challengeStartDate");
+        
+        console.log("App blocking stopped");
+      } catch (error) {
+        console.error("Error stopping app blocking:", error);
+      }
     };
 
-    const block = () => {
-      // ReactNativeDeviceActivity.stopMonitoring([monitoringEventName]);
-      ReactNativeDeviceActivity.blockSelection({ activitySelectionId: pledgeActivitySelectionId });
+    const block = async () => {
+      try {
+        const pledgeSettings = await AsyncStorage.getItem("pledgeSettings");
+        if (!pledgeSettings) return;
+        
+        const parsedSettings = JSON.parse(pledgeSettings);
+        const selectionEvent = parsedSettings.selectionEvent;
+        
+        if (!selectionEvent?.familyActivitySelection) return;
+        
+        // Set the activity selection ID first
+        await ReactNativeDeviceActivity.setFamilyActivitySelectionId({
+          id: pledgeActivitySelectionId,
+          familyActivitySelection: selectionEvent.familyActivitySelection,
+        });
+        
+        // Then block the selected apps
+        ReactNativeDeviceActivity.blockSelection({ 
+          activitySelectionId: pledgeActivitySelectionId
+        });
+      } catch (error) {
+        console.error("Error blocking apps:", error);
+      }
     };
 
     const shieldConfiguration = () => {
@@ -170,21 +146,6 @@ export namespace Controller {
       //   toggleChallengeCompleted,
     };
   };
-
-  //   export const useHandleChallengeCompleted = () => {
-  //     TODO
-  //     const handlePaymentSuccess = () => {
-  //       setShowPaymentPopup(false);
-  //     };
-  //     TODO
-  //     const toggleChallengeCompleted = () => {
-  //       navigation.navigate("ChallengeCompleted");
-  //     };
-  //       return {
-  //         handlePaymentSuccess,
-  //         toggleChallengeCompleted,
-  //       }
-  //   };
 
   export const useHandleChangeEvents = (
     setModalVisible: Dispatch<SetStateAction<boolean>>

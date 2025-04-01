@@ -119,7 +119,6 @@ const AppsOnboardingGrid: React.FC<AppsOnboardingListProps> = ({
             // @ts-ignore
             navigation.navigate("SelectApps", {
               deviceActivitySelection: selectionEvent,
-              setDeviceActivitySelection: onSelectionChange,
             });
           }}
           style={[styles.button, styles.buttonWithOverflow]}

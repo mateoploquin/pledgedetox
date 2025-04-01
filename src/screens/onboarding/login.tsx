@@ -19,10 +19,9 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Navigate to SelectApps screen
+      // Navigate to SelectApps screen with only serializable parameters
       navigation.navigate("SelectApps", {
         deviceActivitySelection: undefined,
-        setDeviceActivitySelection: () => {},
       });
     } catch (error) {
       console.error("Login Error:", error);
