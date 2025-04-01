@@ -1,10 +1,14 @@
-import { useState } from "react";
-import { Button, NativeSyntheticEvent, Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { useState, useEffect } from "react";
+import { Button, NativeSyntheticEvent, Text, View, StyleSheet, TouchableOpacity, Alert, Linking } from "react-native";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 import {
   DeviceActivitySelectionEvent,
   DeviceActivitySelectionView,
   setFamilyActivitySelectionId,
+  requestAuthorization,
+  getAuthorizationStatus,
+  AuthorizationStatus,
+  AuthorizationStatusType
 } from "react-native-device-activity";
 import { pledgeActivitySelectionId } from "../home/home.constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,10 +27,54 @@ export type SelectAppsViewProps = {
 const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedAppsCount, setSelectedAppsCount] = useState(0);
+  const [authorizationStatus, setAuthorizationStatus] = useState<AuthorizationStatusType>(AuthorizationStatus.notDetermined);
+  const [isRequesting, setIsRequesting] = useState(false);
 
   const [deviceActivitySelection, setDeviceActivitySelection] = useState<
     DeviceActivitySelectionEvent | undefined
   >(route.params.deviceActivitySelection);
+
+  useEffect(() => {
+    // Check current authorization status when component mounts
+    const currentStatus = getAuthorizationStatus();
+    setAuthorizationStatus(currentStatus);
+    
+    // If not authorized, request authorization
+    if (currentStatus !== AuthorizationStatus.approved) {
+      requestScreenTimeAccess();
+    }
+  }, []);
+
+  const requestScreenTimeAccess = async () => {
+    if (isRequesting) return; // Prevent multiple rapid requests
+    
+    try {
+      setIsRequesting(true);
+      
+      if (authorizationStatus === AuthorizationStatus.notDetermined) {
+        // First-time request
+        await requestAuthorization();
+        const newStatus = getAuthorizationStatus();
+        setAuthorizationStatus(newStatus);
+        
+        if (newStatus !== AuthorizationStatus.approved) {
+          // If still not authorized after request
+          showAuthorizationAlert();
+        }
+      } else if (authorizationStatus === AuthorizationStatus.denied) {
+        // Previously denied, direct to settings
+        showAuthorizationAlert();
+      }
+    } catch (error) {
+      console.error("Error requesting Screen Time authorization:", error);
+      Alert.alert(
+        "Authorization Error",
+        "There was an error requesting Screen Time access. Please try again."
+      );
+    } finally {
+      setIsRequesting(false);
+    }
+  };
 
   const updateDeviceActivitySelection = (
     event: any
