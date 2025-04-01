@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "PledgeDetox",
-    "slug": "pledgedetox",
+    "slug": "pledge-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "buildNumber": "1",
+      "buildNumber": "2",
       "bundleIdentifier": "com.pledgecompany.pledgedetox",
       "infoPlist": {
         "NSCameraUsageDescription": "PledgeDetox does not use the camera for any purpose"
