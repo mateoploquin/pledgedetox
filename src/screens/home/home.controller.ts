@@ -106,29 +106,39 @@ export namespace Controller {
     };
 
     const shieldConfiguration = () => {
-      const primaryColor = { red: 1, green: 0, blue: 0 };
-      const secondaryColor = { red: 1, green: 1, blue: 1 };
-      const accentColor = { red: 0.2, green: 0.2, blue: 0.8 };
-
-      ReactNativeDeviceActivity.updateShieldWithId(
-        {
-          title: "App blocked by Pledge",
-          backgroundBlurStyle: UIBlurEffectStyle.systemMaterialDark,
-          titleColor: primaryColor,
-          subtitle: "Enough scrolling for today...",
-          subtitleColor: secondaryColor,
-          primaryButtonBackgroundColor: accentColor,
-          primaryButtonLabelColor: secondaryColor,
-          secondaryButtonLabelColor: secondaryColor,
-        },
-        {
-          primary: {
-            behavior: "close",
-            type: "dismiss",
+      try {
+        console.log("Configuring shield with ID:", pledgeShieldId);
+        
+        // Brand colors - using Pledge orange as the accent color
+        const primaryColor = { red: 1, green: 0.5, blue: 0 }; // Orange
+        const secondaryColor = { red: 1, green: 1, blue: 1 }; // White
+        const textColor = { red: 0, green: 0, blue: 0 }; // Black
+        
+        // Configure the shield
+        ReactNativeDeviceActivity.updateShieldWithId(
+          {
+            title: "Pledge Challenge Active",
+            backgroundBlurStyle: UIBlurEffectStyle.systemMaterialLight,
+            titleColor: textColor,
+            subtitle: "Remember your commitment to less scrolling, more living.",
+            subtitleColor: textColor,
+            primaryButtonBackgroundColor: primaryColor,
+            primaryButtonLabelColor: secondaryColor,
+            secondaryButtonLabelColor: primaryColor,
           },
-        },
-        pledgeShieldId
-      );
+          {
+            primary: {
+              behavior: "close",
+              type: "dismiss",
+            },
+          },
+          pledgeShieldId
+        );
+        
+        console.log("Shield configuration completed successfully");
+      } catch (error) {
+        console.error("Error configuring shield:", error);
+      }
     };
 
     const parseMinutes = (total: number): Interfaces.Timer => {

@@ -35,6 +35,9 @@ const ChallengeOn = () => {
         // Continue with the challenge even if notifications fail
       }
       
+      // Apply shield configuration again right before blocking
+      shieldConfiguration();
+      
       // Trigger the app blocking directly
       await block();
       
