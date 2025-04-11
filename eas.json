@@ -29,8 +29,7 @@
       "extends": "base",
       "distribution": "store",
       "ios": {
-        "resourceClass": "m-medium",
-        "buildNumber": "18"
+        "resourceClass": "m-medium"
       }
     }
   },

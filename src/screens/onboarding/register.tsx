@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Image,
   ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -91,14 +90,6 @@ const RegisterScreen: React.FC = () => {
           )}
         </View>
       </View>
-
-      <View style={styles.imageContainer}>
-        <Image
-          source={require("../../../assets/images/onboarding/Phone_withicons.png")}
-          style={styles.backgroundImage}
-          resizeMode="contain"
-        />
-      </View>
     </AppWrapper>
   );
 };
@@ -153,19 +144,6 @@ const styles = StyleSheet.create({
   continueButtonText: {
     color: colors.black,
     fontWeight: "600",
-  },
-  imageContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  backgroundImage: {
-    width: '100%',
-    height: '100%',
   },
 });
 
