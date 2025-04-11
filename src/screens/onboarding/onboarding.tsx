@@ -13,11 +13,11 @@ const Onboarding: React.FC = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const [isPledged, setIsPledged] = useState(false);
 
-  // Navigate to login when slider is completed
+  // Navigate to register when slider is completed
   useEffect(() => {
     if (isPledged) {
       const timer = setTimeout(() => {
-        navigation.navigate("Login");
+        navigation.navigate("Register");
       }, 500);
       
       return () => clearTimeout(timer);

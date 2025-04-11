@@ -81,19 +81,25 @@ const AppsOnboardingGrid: React.FC<AppsOnboardingListProps> = ({
 
   const renderButton = () => {
     return (
-      <View style={styles.buttonContainer}>
-        <Text style={styles.buttonText}>
+      <View style={[
+        styles.buttonContainer,
+        permissionsGranted && selectionEvent && styles.selectedButtonContainer
+      ]}>
+        <Text style={[
+          styles.buttonText,
+          permissionsGranted && selectionEvent && styles.selectedButtonText
+        ]}>
           {permissionsGranted
             ? selectionEvent
-              ? `You selected ${selectionEvent.applicationCount} apps, ${selectionEvent.categoryCount} categories and ${selectionEvent.webDomainCount} websites`
-              : "Choose apps"
+              ? "Apps Selected"
+              : "Click to Select Apps..."
             : "Grant permissions"}
         </Text>
         <Entypo
           name="chevron-thin-down"
           size={17}
           style={styles.chevronIcon}
-          color={colors.orange}
+          color={permissionsGranted && selectionEvent ? colors.white : colors.orange}
         />
       </View>
     );
@@ -169,6 +175,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.orange,
     pointerEvents: "none",
+  },
+  selectedButtonText: {
+    color: colors.white,
+  },
+  selectedButtonContainer: {
+    backgroundColor: colors.orange,
   },
   chevronIcon: {
     marginRight: 17,

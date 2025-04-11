@@ -6,15 +6,30 @@ import {
 import axios from "axios";
 import { auth } from "../firebaseConfig";
 
-export async function signUp(email, password, displayName) {
+// Generate a random password for users
+function generateRandomPassword() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+  let password = '';
+  for (let i = 0; i < 16; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
+
+export async function signUp(email, displayName) {
   try {
+    // Generate a random password that the user doesn't need to remember
+    const password = generateRandomPassword();
+    
+    // Create user with email and the generated password
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
     const user = userCredential.user;
-
+    
+    // Update the user's display name
     await updateProfile(user, { displayName });
 
     await user.reload();

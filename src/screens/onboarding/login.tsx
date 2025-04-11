@@ -5,7 +5,7 @@ import AppWrapper from "../../components/layout/app-wrapper";
 import MainHeader from "../../components/headers/main-header";
 import colors from "../../theme/colors";
 import { useNavigation } from "@react-navigation/native";
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInAnonymously, getAuth, updateEmail } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 import MainButton from "../../components/buttons/main-button";
 
@@ -14,11 +14,21 @@ interface LoginScreenProps {}
 const LoginScreen: React.FC<LoginScreenProps> = () => {
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+    if (!email || !email.includes('@')) {
+      Alert.alert("Invalid Email", "Please enter a valid email address");
+      return;
+    }
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Sign in anonymously first
+      const userCredential = await signInAnonymously(auth);
+      const user = userCredential.user;
+      
+      // Then update the anonymous user's email
+      await updateEmail(user, email);
+      
       // Navigate to SelectApps screen with only serializable parameters
       navigation.navigate("SelectApps", {
         deviceActivitySelection: undefined,
@@ -44,18 +54,7 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
             textContentType="emailAddress"
             value={email}
             onChangeText={setEmail}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Enter Your Password"
-            style={styles.input}
-            placeholderTextColor={"#929292"}
-            value={password}
-            onChangeText={setPassword}
             onSubmitEditing={handleLogin}
-            textContentType="password"
-            secureTextEntry
           />
         </View>
 

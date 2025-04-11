@@ -1,11 +1,14 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import { Animated, Easing } from "react-native";
 import HomeScreen from "../screens/home";
 import SplashScreen from "../screens/onboarding";
-import LoginScreen from "../screens/onboarding/login";
+import RegisterScreen from "../screens/onboarding/register";
+import SelectDurationScreen from "../screens/onboarding/select-duration";
 import ChallengeOn from "../screens/onboarding/setup/challenge-on";
 import ChallengeCompleted from "../screens/challenge-completed";
 import SelectAppsView from "../screens/select-apps";
+import Instructions from "../screens/onboarding/instructions";
 
 const Stack = createStackNavigator();
 
@@ -31,8 +34,18 @@ const AppNavigator = ({ initialRouteName }) => {
         options={hideHeaderOptions}
       />
       <Stack.Screen
-        name="Login"
-        component={LoginScreen}
+        name="Register"
+        component={RegisterScreen}
+        options={hideHeaderNoAnimation}
+      />
+      <Stack.Screen
+        name="SelectDuration"
+        component={SelectDurationScreen}
+        options={hideHeaderNoAnimation}
+      />
+      <Stack.Screen
+        name="Instructions"
+        component={Instructions}
         options={hideHeaderNoAnimation}
       />
       <Stack.Screen

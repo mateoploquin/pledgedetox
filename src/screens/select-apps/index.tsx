@@ -29,6 +29,7 @@ const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
   const [selectedAppsCount, setSelectedAppsCount] = useState(0);
   const [authorizationStatus, setAuthorizationStatus] = useState<AuthorizationStatusType>(AuthorizationStatus.notDetermined);
   const [isRequesting, setIsRequesting] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const [deviceActivitySelection, setDeviceActivitySelection] = useState<
     DeviceActivitySelectionEvent | undefined
@@ -131,8 +132,8 @@ const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
     }
   };
 
-  const handleGoBack = () => {
-    navigation.goBack();
+  const handleDone = () => {
+    setIsVisible(false);
   };
 
   return (
@@ -162,12 +163,18 @@ const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
       </View>
 
       <TouchableOpacity 
-        style={styles.selectAppsButton}
+        style={[
+          styles.selectAppsButton,
+          selectedAppsCount > 0 && styles.appsSelectedButton
+        ]}
         onPress={() => {
           setIsVisible(true);
         }}
       >
-        <Text style={styles.selectAppsButtonText}>
+        <Text style={[
+          styles.selectAppsButtonText,
+          selectedAppsCount > 0 && styles.appsSelectedButtonText
+        ]}>
           {selectedAppsCount > 0 
             ? `${selectedAppsCount} Apps Selected` 
             : "Click to Select Apps..."}
@@ -178,7 +185,7 @@ const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
         <View style={styles.selectionOverlay}>
           <View style={styles.selectionHeader}>
             <Text style={styles.selectionHeaderText}>Select Apps to Block</Text>
-            <Button title="Done" color={colors.orange} onPress={() => setIsVisible(false)} />
+            <Button title="Done" color={colors.orange} onPress={handleDone} />
           </View>
           <DeviceActivitySelectionView
             familyActivitySelection={
@@ -196,10 +203,6 @@ const SelectAppsView = ({ navigation, route }: SelectAppsViewProps) => {
             ? `Continue with ${selectedAppsCount} Apps` 
             : "Continue"}
         </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={handleGoBack}>
-        <Text style={styles.goBackText}>Go Back</Text>
       </TouchableOpacity>
     </View>
   );
@@ -271,7 +274,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 10,
   },
   selectionHeaderText: {
-    color: colors.white,
+    color: colors.black,
     fontSize: 18,
     fontWeight: '600',
   },
@@ -287,10 +290,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 30,
   },
+  appsSelectedButton: {
+    backgroundColor: colors.orange,
+  },
   selectAppsButtonText: {
     color: colors.orange,
     fontSize: 16,
     fontWeight: '500',
+  },
+  appsSelectedButtonText: {
+    color: colors.white,
   },
   continueButton: {
     width: '90%',
@@ -305,11 +314,6 @@ const styles = StyleSheet.create({
     color: colors.orange,
     fontSize: 16,
     fontWeight: '500',
-  },
-  goBackText: {
-    color: colors.white,
-    fontSize: 14,
-    textDecorationLine: 'underline',
   },
 });
 

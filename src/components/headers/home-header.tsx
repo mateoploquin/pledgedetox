@@ -18,23 +18,23 @@ const HomeHeader: React.FC = ({}) => {
 
 const styles = StyleSheet.create({
   container: {
-    // marginTop: 16,
-    // position: "absolute",
     width: SCREEN_WIDTH,
     alignItems: "center",
     alignSelf: "center",
+    marginTop: 20,
   },
   title: {
     fontSize: 40,
-    letterSpacing: -3,
-    fontWeight: "800",
-    color: 'white',
+    letterSpacing: -4,
+    fontWeight: "900",
+    color: colors.white,
   },
   subtitle: {
-    fontSize: 16,
-    color: 'white',
-    marginTop: 15,
-    letterSpacing: 4,
+    fontSize: 12,
+    letterSpacing: 2,
+    fontWeight: "500",
+    marginTop: 4,
+    color: colors.white,
   },
 });
 

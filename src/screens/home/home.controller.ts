@@ -16,6 +16,7 @@ import { SetStateAction, useCallback } from "react";
 import { Dispatch } from "react";
 import { SelectionInfo } from '../../types';
 import { DeviceActivityEvent, UIBlurEffectStyle } from 'react-native-device-activity';
+import * as Notifications from 'expo-notifications';
 
 export namespace Controller {
   export const useHandleMonitoring = () => {
@@ -50,11 +51,10 @@ export namespace Controller {
           activitySelectionId: pledgeActivitySelectionId
         });
         
-        // Save the challenge start date if not already set
-        const now = new Date();
-        await AsyncStorage.setItem("challengeStartDate", now.toISOString());
+        // Note: Challenge start date is now set in the Challenge On screen
+        // to ensure proper synchronization with the selected duration
         
-        console.log("Apps blocked for 30 days challenge");
+        console.log("Apps blocked for challenge");
         
         // For debugging purposes, log the selection event structure
         console.log("Selection event structure:", JSON.stringify(selectionEvent).substring(0, 200) + "...");
@@ -71,7 +71,10 @@ export namespace Controller {
         // Clear the challenge start date
         await AsyncStorage.removeItem("challengeStartDate");
         
-        console.log("App blocking stopped");
+        // Also clear the pledge settings to ensure a complete reset
+        await AsyncStorage.removeItem("pledgeSettings");
+        
+        console.log("App blocking stopped and challenge data reset");
       } catch (error) {
         console.error("Error stopping app blocking:", error);
       }
@@ -152,12 +155,27 @@ export namespace Controller {
   ) => {
     const { stopMonitoring, parseMinutes } = useHandleMonitoring();
     const navigation = useNavigation<any>();
-    const onSurrender = () => {
-      console.log('123123')
+    const onSurrender = async () => {
+      console.log('User surrendered challenge');
+      
+      // Stop monitoring and clear challenge data
       stopMonitoring();
       setModalVisible(false);
+      
+      // Make sure to remove all challenge data
       AsyncStorage.removeItem("pledgeSettings");
       AsyncStorage.removeItem("challengeStartDate");
+      AsyncStorage.removeItem("challengeDuration");
+      
+      // Cancel all notifications
+      try {
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        console.log('Notifications canceled on surrender');
+      } catch (error) {
+        console.error('Error canceling notifications:', error);
+      }
+      
+      // Navigate to the challenge completed screen with failure result
       navigation.navigate("ChallengeCompleted", { result: "failure" });
     };
 

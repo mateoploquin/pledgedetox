@@ -10,5 +10,5 @@ export const eventNameTick = "minutes_reached";
 export const eventNameFinish = "tresholdReached";
 export const pledgeActivitySelectionId = "pledgeActivitySelection";
 export const pledgeShieldId = "pledgeShield";
-export const CHALLENGE_DURATION = 30;
+export const DEFAULT_CHALLENGE_DURATION = 14; // Default duration if none is selected
 export const POSTPONE_MINUTES = 5

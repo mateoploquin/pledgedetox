@@ -14,21 +14,21 @@ const MainHeaderLight: React.FC = ({}) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 16,
+    marginTop: 60,
     width: SCREEN_WIDTH,
     alignItems: "center",
     alignSelf: "center",
   },
   title: {
     fontSize: 40,
-    letterSpacing: -3,
-    fontWeight: "800",
+    letterSpacing: -4,
+    fontWeight: "900",
     color: colors.white,
   },
   subtitle: {
     fontSize: 12,
-    letterSpacing: 4,
-    fontWeight: "400",
+    letterSpacing: 2,
+    fontWeight: "500",
     marginTop: 4,
     color: colors.white,
   },

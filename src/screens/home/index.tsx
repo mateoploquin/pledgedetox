@@ -3,8 +3,8 @@ import * as ReactNativeDeviceActivity from "react-native-device-activity";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
+  TouchableOpacity,
   Button,
 } from "react-native";
 import colors from "../../theme/colors";
@@ -14,7 +14,7 @@ import HomeWrapper from "../../components/layout/home-wrapper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PledgeSettings } from "../../types";
 import { Controller } from "./home.controller";
-import { CHALLENGE_DURATION } from "./home.constants";
+import { DEFAULT_CHALLENGE_DURATION } from "./home.constants";
 import { Interfaces } from "./home.interfaces";
 
 const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
@@ -30,6 +30,7 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
   const [challengeStartDate, setChallengeStartDate] = useState<Date | null>(
     null
   );
+  const [challengeDuration, setChallengeDuration] = useState<number>(DEFAULT_CHALLENGE_DURATION);
   const [countdown, setCountdown] = useState({
     days: 0,
     hours: 0,
@@ -46,7 +47,9 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
 
   useEffect(() => {
     let listener: (() => void) | undefined;
-    AsyncStorage.getItem("pledgeSettings").then((s) => {
+    
+    const loadSettings = async () => {
+      const s = await AsyncStorage.getItem("pledgeSettings");
       if (s) {
         const settings = JSON.parse(s);
         if (!settings.paymentSetupComplete) {
@@ -56,13 +59,21 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
         setSettings(settings);
         shieldConfiguration();
 
+        // Load the challenge duration
+        const durationStr = await AsyncStorage.getItem("challengeDuration");
+        if (durationStr) {
+          setChallengeDuration(parseInt(durationStr, 10));
+        }
+
         listener = ReactNativeDeviceActivity.onDeviceActivityMonitorEvent(
           (event) => {
             console.log("got event");
           }
         ).remove;
       }
-    });
+    };
+
+    loadSettings();
 
     return () => {
       listener?.();
@@ -76,6 +87,22 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
         if (startDateStr) {
           const startDate = new Date(startDateStr);
           setChallengeStartDate(startDate);
+          
+          // Load the challenge duration each time we check the start date
+          // This ensures we always have the latest duration value
+          const durationStr = await AsyncStorage.getItem("challengeDuration");
+          if (durationStr) {
+            const duration = parseInt(durationStr, 10);
+            // Only log and update if the duration has changed
+            if (duration !== challengeDuration) {
+              console.log("Challenge duration updated:", duration);
+              setChallengeDuration(duration);
+            }
+          }
+        } else {
+          // If challenge start date is removed (e.g., after surrender), reset the countdown
+          setChallengeStartDate(null);
+          setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         }
       } catch (error) {
         console.error("Error loading challenge start date:", error);
@@ -83,7 +110,12 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
     };
 
     loadChallengeStartDate();
-  }, []);
+    
+    // Set up a periodic check for changes to the challenge start date
+    const intervalId = setInterval(loadChallengeStartDate, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [challengeDuration]);
 
   useEffect(() => {
     if (!challengeStartDate) return;
@@ -91,7 +123,8 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
     const calculateTimeLeft = () => {
       const now = new Date();
       const endDate = new Date(challengeStartDate);
-      endDate.setDate(endDate.getDate() + CHALLENGE_DURATION);
+      // Use the selected challenge duration instead of the hardcoded value
+      endDate.setDate(endDate.getDate() + challengeDuration);
 
       const difference = endDate.getTime() - now.getTime();
 
@@ -101,6 +134,7 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
 
         AsyncStorage.removeItem("pledgeSettings");
         AsyncStorage.removeItem("challengeStartDate");
+        AsyncStorage.removeItem("challengeDuration");
 
         navigation.navigate("ChallengeCompleted", { result: "success" });
         return;
@@ -116,11 +150,11 @@ const HomeScreen: FC<Interfaces.HomeScreenProps> = (props) => {
       setCountdown({ days, hours, minutes, seconds });
     };
 
-    const timer = setInterval(calculateTimeLeft, 1000);
     calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
-  }, [challengeStartDate]);
+  }, [challengeStartDate, challengeDuration]);
 
   if (!settings) {
     return null;
@@ -210,9 +244,8 @@ const styles = StyleSheet.create({
     bottom: 40,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
     width: 200,
   },
   surrenderText: {
