@@ -29,14 +29,21 @@ export default function App() {
   useEffect(() => {
     const loadPublishableKey = async () => {
       try {
-        // If you have authentication, get the ID token from auth:
-        // const user = auth.currentUser;
-        // const idToken = user ? await user.getIdToken() : undefined;
+        // Add a timeout to the Stripe API call
+        const timeoutPromise = new Promise<string>((_, reject) =>
+          setTimeout(() => reject(new Error('Stripe API timeout')), 3000)
+        );
         
-        const key = await fetchPublishableKey();
+        // Race between the API call and the timeout
+        const key = await Promise.race([
+          fetchPublishableKey(),
+          timeoutPromise
+        ]);
+        
         setPublishableKey(key);
       } catch (error) {
-        console.error("Failed to load publishable key:", error);
+        console.warn("Failed to load publishable key:", error);
+        // Continue without the key - we'll handle this in the payment flow
       }
     };
 
@@ -44,24 +51,22 @@ export default function App() {
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
-    if (isLoadingComplete && publishableKey) {
+    // Only wait for isLoadingComplete, not publishableKey
+    if (isLoadingComplete) {
       await SplashScreen.hideAsync();
     }
-  }, [isLoadingComplete, publishableKey]);
+  }, [isLoadingComplete]);
 
-  if (!initialRouteName || !isLoadingComplete || !publishableKey) {
-    // Render a loading state until we have both initialRouteName and publishableKey
-    return null;
-  }
-
+  // If we don't have a key yet, we still render the app
+  // The Stripe functionality will be disabled until the key loads
   return (
-    <StripeProvider publishableKey={publishableKey} merchantIdentifier="merchant.pledge.applepay">
-      <NavigationContainer>
+    <NavigationContainer>
+      <StripeProvider publishableKey={publishableKey || 'pk_placeholder'}>
         <AppContent
           initialRouteName={initialRouteName}
           onLayoutRootView={onLayoutRootView}
         />
-      </NavigationContainer>
-    </StripeProvider>
+      </StripeProvider>
+    </NavigationContainer>
   );
 }
